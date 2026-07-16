@@ -2,10 +2,7 @@
 # Installs and configures HAProxy as a round-robin load balancer
 
 apt-get update
-apt-get install -y --no-install-recommends software-properties-common
-add-apt-repository ppa:vbernat/haproxy-2.8 -y
-apt-get update
-apt-get install -y haproxy=2.8.\*
+apt-get install -y haproxy
 
 cat > /etc/haproxy/haproxy.cfg << 'EOF'
 global
