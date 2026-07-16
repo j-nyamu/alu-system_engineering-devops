@@ -2,36 +2,38 @@
 # Installs and configures HAProxy as a round-robin load balancer
 
 apt-get update
-apt-get install -y haproxy
+DEBIAN_FRONTEND=noninteractive apt-get install -y haproxy
 
 cat > /etc/haproxy/haproxy.cfg << 'EOF'
 global
-	log /dev/log	local0
-	log /dev/log	local1 notice
-	chroot /var/lib/haproxy
-	stats socket /run/haproxy/admin.sock mode 660 level admin expose-fd listeners
-	stats timeout 30s
-	user haproxy
-	group haproxy
-	daemon
+    log /dev/log local0
+    log /dev/log local1 notice
+    chroot /var/lib/haproxy
+    stats socket /run/haproxy/admin.sock mode 660 level admin expose-fd listeners
+    stats timeout 30s
+    user haproxy
+    group haproxy
+    daemon
+    h1-case-adjust x-served-by X-Served-By
 
 defaults
-	log	global
-	mode	http
-	option	httplog
-	option	dontlognull
-	timeout connect 5000
-	timeout client  50000
-	timeout server  50000
+    log global
+    mode http
+    option httplog
+    option dontlognull
+    option h1-case-adjust-bogus-client
+    timeout connect 5000
+    timeout client 50000
+    timeout server 50000
 
 frontend http_front
-	bind *:80
-	default_backend http_back
+    bind *:80
+    default_backend http_back
 
 backend http_back
-	balance roundrobin
-	server 7077-web-01 44.211.165.16:80 check
-	server 7077-web-02 54.236.220.142:80 check
+    balance roundrobin
+    server 7077-web-01 44.211.165.16:80 check
+    server 7077-web-02 54.236.220.142:80 check
 EOF
 
 echo "ENABLED=1" > /etc/default/haproxy
